@@ -8,14 +8,14 @@ We use the closest value in barycentric coordinates to color the pixels accordin
 ## Install
 
 ```
-pip install git+https://github.com/katosh/multi_bary_plot
+pip install git+ssh://git@ribogit.izi.fraunhofer.de/Dominik/multi_bary_plot.git
 ```
 
 ## Example
 
 
 ```python
-from multi_bary_plot.multi_bary_plot import multi_bary_plot
+from multi_bary_plot import multi_bary_plot
 import pandas as pd
 ```
 
