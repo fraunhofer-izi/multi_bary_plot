@@ -116,10 +116,10 @@ class multi_bary_plot:
         vals = df['val'][ind]
         return vals.values.reshape(self.grid.shape[1:])
 
+    @property
     def in_hull(self):
-        """Determines element-wise whether the points are
-        inside of the convex hull spanned by the vertices
-        of the barycentric coordinate system."""
+        """A mask of the grid for the part outside
+        the simplex."""
         points = self.fgrid.T
         inside = np.repeat(True, len(points))
         for simplex in self.hull:
@@ -135,7 +135,7 @@ class multi_bary_plot:
         """The Pixel colors masked to the inside of
         the barycentric coordinate system."""
         values = self._vals_on_grid()
-        return np.ma.masked_where(~self.in_hull(), values)
+        return np.ma.masked_where(~self.in_hull, values)
     
     @property
     def textPos(self):
