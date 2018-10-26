@@ -109,7 +109,6 @@ class multi_bary_plot:
         
     def _vals_on_grid(self):
         """Returns the unmasked pixel colors."""
-        print('Rasterizing values...')
         df = self.df
         fgrid = self.fgrid
         dist = cdist(fgrid.T, df[['x','y']].values)
@@ -117,26 +116,19 @@ class multi_bary_plot:
         vals = df['val'][ind]
         return vals.values.reshape(self.grid.shape[1:])
 
-    def in_hull(self, points=None):
+    def in_hull(self):
         """Determines element-wise whether the points are
         inside of the convex hull spanned by the vertices
         of the barycentric coordinate system."""
-        if points is None:
-            points = self.fgrid.T
-            print('Filling the convex hull...')
-        c = np.zeros(self.nverts)
-        A = np.r_[self.vertices.T,
-                  np.ones((1, self.nverts))]
-        def _pool_in_hull(point):
-            b = np.r_[point, 1]
-            lp = linprog(c, A_eq=A, b_eq=b)
-            return lp.success
-        rdata = list()
-        with Pool() as pool:
-            p = pool.imap(_pool_in_hull, points, 100)
-            for r in self.tqdm(p, total=len(points)):
-                rdata.append(r)
-        return np.array(rdata).reshape(self.grid.shape[1:])
+        points = self.fgrid.T
+        inside = np.repeat(True, len(points))
+        for simplex in self.hull:
+            vec = self.vertices.values[simplex]
+            vec = vec.mean(axis=0, keepdims=True)
+            shifted = points - vec
+            below = np.dot(shifted, vec.T) < 0
+            inside = np.logical_and(inside, below.T)
+        return inside.reshape(self.grid.shape[1:])
     
     @property
     def plot_values(self):
