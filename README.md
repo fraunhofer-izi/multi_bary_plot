@@ -35,15 +35,8 @@ bp = multi_bary_plot(pdat, 'val')
 fig, ax, im = bp.plot()
 ```
 
-    Rasterizing values...
-    Filling the convex hull...
 
-
-    100%|██████████| 250000/250000 [00:48<00:00, 5199.98it/s]
-
-
-
-![png](README_files/README_3_2.png)
+![png](README_files/README_3_0.png)
 
 
 ### 8 Dimensions
@@ -67,13 +60,6 @@ bp = multi_bary_plot(pdat, 'val')
 fig, ax, im = bp.plot(cmap='plasma')
 ```
 
-    Rasterizing values...
-    Filling the convex hull...
 
-
-    100%|██████████| 250000/250000 [00:55<00:00, 4486.69it/s]
-
-
-
-![png](README_files/README_5_2.png)
+![png](README_files/README_5_0.png)
 
