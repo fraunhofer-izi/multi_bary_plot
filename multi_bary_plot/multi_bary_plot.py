@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 import pandas as pd
 from multiprocess import Pool
@@ -165,15 +166,20 @@ class multi_bary_plot:
             ax.text(row['x'], row['y'], index, ha=row['textHPos'], va=row['textVPos'])
         return ax
     
-    def image(self, colorbar=True, **kwargs):
+    def imshow(self, colorbar=True, figure=None, axis=None, **kwargs):
         """
         
         Plots the data in barycentric coordinates.
         
         Parameters
         ----------
-        colorbar : bool
+        colorbar : bool, optional
             If true a colorbar is plotted on the bottom of the image.
+            Ignored if figure is None and axis is not None.
+        figure : matplotlib.figure, optional
+            The figure to plot in.
+        axis : matplotlib.axis, optinal
+            The axis to plot in.
         **kwargs
             All keyword arguments are passed on to matplotlib.imshow.
             
@@ -185,16 +191,22 @@ class multi_bary_plot:
         """
         if self.values is None:
             raise ValueError('No value column supplied.')
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.set_aspect('equal', 'datalim')
-        ax.axis('off')
-        im = ax.imshow(self.plot_values, extent=[-1, 1, -1, 1], **kwargs)
-        ax = self.draw_polygon(ax)
+        if figure is None and axis is not None and colorbar:
+            warnings.warn('Axis but no figure is supplied,'
+                          + ' so a colorbar cannot be returned.')
+            colorbar = False
+        elif figure is None and axis is None:
+            figure = plt.figure()
+        if axis is None:
+            axis = figure.add_subplot(111)
+        axis.set_aspect('equal', 'datalim')
+        axis.axis('off')
+        im = axis.imshow(self.plot_values, extent=[-1, 1, -1, 1], **kwargs)
+        axis = self.draw_polygon(axis)
         if colorbar:
-            divider = make_axes_locatable(ax)
+            divider = make_axes_locatable(axis)
             cax = divider.append_axes('bottom', size='5%', pad=self.colorbar_pad)
             ticks = np.linspace(np.min(self.plot_values), np.max(self.plot_values), 6)
             ticks = [float('{:.2g}'.format(i)) for i in ticks]
-            fig.colorbar(im, cax=cax, orientation='horizontal', ticks=ticks)
+            figure.colorbar(im, cax=cax, orientation='horizontal', ticks=ticks)
         return fig, ax, im
