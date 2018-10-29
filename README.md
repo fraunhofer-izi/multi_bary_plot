@@ -34,11 +34,29 @@ pdat = pd.DataFrame({'class 1':vec,
 
 # plot
 bp = multi_bary_plot(pdat, 'val')
-fig, ax, im = bp.plot()
+fig, ax, im = bp.imshow()
 ```
 
 
 ![png](README_files/README_3_0.png)
+
+
+
+```python
+fig, ax, sc = bp.scatter()
+```
+
+
+![png](README_files/README_4_0.png)
+
+
+
+```python
+fig, ax, ll = bp.plot()
+```
+
+
+![png](README_files/README_5_0.png)
 
 
 ### 8 Dimensions
@@ -60,9 +78,27 @@ pdat = pd.DataFrame({'class 1':pos,
                      'val':pos*100})
 # plot
 bp = multi_bary_plot(pdat, 'val')
-fig, ax, im = bp.plot(cmap='plasma')
+fig, ax, im = bp.imshow(cmap='plasma')
 ```
 
 
-![png](README_files/README_5_0.png)
+![png](README_files/README_7_0.png)
+
+
+
+```python
+fig, ax, sc = bp.scatter(cmap='plasma')
+```
+
+
+![png](README_files/README_8_0.png)
+
+
+
+```python
+fig, ax, ll = bp.plot()
+```
+
+
+![png](README_files/README_9_0.png)
 

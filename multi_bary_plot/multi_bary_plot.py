@@ -22,12 +22,12 @@ class multi_bary_plot:
         The name of the value coumn in `data`.
     res : int
         The number of pixel along one axis.
-        
+
     Returns
     -------
     multi_bary_plot : instance
         An instance of the multi_bary_plot.
-    
+
     Usage
     -----
     vec = list(range(100))
@@ -71,20 +71,20 @@ class multi_bary_plot:
             self.colorbar_pad = -.5
         elif (self.nverts & 1) == 0 or self.nverts > 5:
             self.colorbar_pad = .3
-    
+
     @property
     def grid(self):
         """The grid of pixels to raster."""
         x = np.linspace(-1, 1, self.res)
         return np.array(np.meshgrid(x, -x))
-    
+
     @property
     def fgrid(self):
         """Melted x and y coordinates of the pixel grid."""
         grid = self.grid
         return grid.reshape((grid.shape[0],
                              grid.shape[1]*grid.shape[2]))
-    
+
     @property
     def vertices(self):
         """The vertices of the barycentric coordinate system."""
@@ -94,12 +94,12 @@ class multi_bary_plot:
         vertices = pd.DataFrame(vertices, columns=['x', 'y'],
                                 index=self.vertNames)
         return vertices
-    
+
     @property
     def hull(self):
         """The edges of the confex hull for plotting."""
         return ConvexHull(self.vertices).simplices
-    
+
     @property
     def df(self):
         """The 2-d coordinates of the given values."""
@@ -107,7 +107,7 @@ class multi_bary_plot:
         pdat = pd.DataFrame(parts, columns=['x', 'y'])
         pdat['val'] = self.values
         return pdat
-        
+
     def _vals_on_grid(self):
         """Returns the unmasked pixel colors."""
         df = self.df
@@ -130,14 +130,14 @@ class multi_bary_plot:
             below = np.dot(shifted, vec.T) < 0
             inside = np.logical_and(inside, below.T)
         return inside.reshape(self.grid.shape[1:])
-    
+
     @property
     def plot_values(self):
         """The Pixel colors masked to the inside of
         the barycentric coordinate system."""
         values = self._vals_on_grid()
         return np.ma.masked_where(~self.in_hull, values)
-    
+
     @property
     def textPos(self):
         """Vertex label positions."""
@@ -154,23 +154,24 @@ class multi_bary_plot:
         textPos.loc[i[1:half], 'textHPos'] = 'left'
         textPos.loc[i[half+1+odd:], 'textHPos']= 'right'
         return textPos
-    
-    def draw_polygon(self, ax=None):
-        if ax is None:
+
+    def draw_polygon(self, axis=None):
+        if axis is None:
             fig = plt.figure()
-            ax = fig.add_subplot(111)
-        vertices = self.vertices    
+            axis = fig.add_subplot(111)
+        vertices = self.vertices
         for simplex in self.hull:
-            ax.plot(vertices.values[simplex, 0], vertices.values[simplex, 1], 'k-')
+            axis.plot(vertices.values[simplex, 0], vertices.values[simplex, 1], 'k-')
         for index, row in self.textPos.iterrows():
-            ax.text(row['x'], row['y'], index, ha=row['textHPos'], va=row['textVPos'])
-        return ax
-    
+            axis.text(row['x'], row['y'], index, ha=row['textHPos'], va=row['textVPos'])
+        return axis
+
     def imshow(self, colorbar=True, figure=None, axis=None, **kwargs):
         """
-        
-        Plots the data in barycentric coordinates.
-        
+
+        Plots the data in barycentric coordinates and colors pixel
+        with closest given value.
+
         Parameters
         ----------
         colorbar : bool, optional
@@ -182,10 +183,10 @@ class multi_bary_plot:
             The axis to plot in.
         **kwargs
             All keyword arguments are passed on to matplotlib.imshow.
-            
+
         Returns
         -------
-        fig, ax, im
+        figure, axis, im
             The Figure, AxesSubplot and AxesImage of the plot.
 
         """
@@ -209,4 +210,95 @@ class multi_bary_plot:
             ticks = np.linspace(np.min(self.plot_values), np.max(self.plot_values), 6)
             ticks = [float('{:.2g}'.format(i)) for i in ticks]
             figure.colorbar(im, cax=cax, orientation='horizontal', ticks=ticks)
-        return fig, ax, im
+        return figure, axis, im
+
+    def scatter(self, color=None, colorbar=None, figure=None, axis=None, **kwargs):
+        """
+
+        Plots the data in barycentric coordinates.
+
+        Parameters
+        ----------
+        color : bool, optional
+            Color points by given values. Ignored if no value column
+            is given.
+        colorbar : bool, optional
+            If true a colorbar is plotted on the bottom of the image.
+            Ignored if figure is None and axis is not None.
+        figure : matplotlib.figure, optional
+            The figure to plot in.
+        axis : matplotlib.axis, optinal
+            The axis to plot in.
+        **kwargs
+            All keyword arguments are passed on to matplotlib.imshow.
+
+        Returns
+        -------
+        figure, axis, pc
+            The Figure, AxesSubplot and PathCollection of the plot.
+
+        """
+        if color is None and self.values is not None:
+            color = True
+        elif color is None:
+            color = False
+        if color and self.values is None:
+            raise ValueError('No value column for color supplied.')
+        if color and colorbar is None:
+            colorbar = True
+        elif colorbar is None:
+            colorbar = False
+        if figure is None and axis is not None and colorbar:
+            warnings.warn('Axis but no figure is supplied,'
+                          + ' so a colorbar cannot be returned.')
+            colorbar = False
+        elif figure is None and axis is None:
+            figure = plt.figure()
+        if axis is None:
+            axis = figure.add_subplot(111)
+        axis.set_aspect('equal', 'datalim')
+        axis.axis('off')
+        df = self.df
+        if color:
+            pc = axis.scatter(df['x'], df['y'], c=df['val'], **kwargs)
+        else:
+            pc = axis.scatter(df['x'], df['y'], **kwargs)
+        axis = self.draw_polygon(axis)
+        if colorbar:
+            divider = make_axes_locatable(axis)
+            cax = divider.append_axes('bottom', size='5%', pad=.2)
+            ticks = np.linspace(np.min(self.plot_values), np.max(self.plot_values), 6)
+            ticks = [float('{:.2g}'.format(i)) for i in ticks]
+            figure.colorbar(pc, cax=cax, orientation='horizontal', ticks=ticks)
+        return figure, axis, pc
+
+    def plot(self, figure=None, axis=None, **kwargs):
+        """
+
+        Plots the data in barycentric coordinates.
+
+        Parameters
+        ----------
+        figure : matplotlib.figure, optional
+            The figure to plot in.
+        axis : matplotlib.axis, optinal
+            The axis to plot in.
+        **kwargs
+            All keyword arguments are passed on to matplotlib.imshow.
+
+        Returns
+        -------
+        figure, axis, ll
+            The Figure, AxesSubplot and list of Line2D of the plot.
+
+        """
+        if figure is None and axis is None:
+            figure = plt.figure()
+        if axis is None:
+            axis = figure.add_subplot(111)
+        axis.set_aspect('equal', 'datalim')
+        axis.axis('off')
+        df = self.df
+        ll = axis.plot(df['x'], df['y'], **kwargs)
+        axis = self.draw_polygon(axis)
+        return figure, axis, ll
