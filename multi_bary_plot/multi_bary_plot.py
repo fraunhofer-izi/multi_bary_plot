@@ -41,9 +41,9 @@ class multi_bary_plot:
     fig, ax, im = bp.plot()
     """
 
-    def __init__(self, data, value_column, res=500,
+    def __init__(self, data, value_column=None, res=500,
                  notebook=False):
-        if value_column not in data.columns.values:
+        if value_column is not None and value_column not in data.columns.values:
             raise ValueError('`value_column` musste be a coumn name of `data`.')
         if not isinstance(res, (int, float)):
             raise ValueError('`res` musst be numerical.')
@@ -53,11 +53,21 @@ class multi_bary_plot:
         if not isinstance(notebook, bool):
             raise ValueError('`notebook` musst be boolean.')
         self.res = int(res)
-        coords = data.drop([value_column], axis=1)
+        if value_column is None:
+            coords = data
+            self.values = None
+        else:
+            coords = data.drop([value_column], axis=1)
+            self.values = data[value_column].values
         norm = np.sum(coords.values, axis=1, keepdims=True)
+        ind = np.sum(np.isnan(coords), axis=1)==0
+        ind = np.logical_and(ind, ~np.isnan(self.values))
+        ind = np.logical_and(ind, (norm!=0).flatten())
+        self.values = self.values[ind]
+        norm = norm[ind]
+        coords = coords[ind]
         self.coords = coords.values / norm
         self.vertNames = list(coords.columns.values)
-        self.values = data[value_column].values
         self.nverts = self.coords.shape[1]
         self.colorbar_pad = .1
         if self.nverts < 3:
@@ -154,7 +164,18 @@ class multi_bary_plot:
         textPos.loc[i[half+1+odd:], 'textHPos']= 'right'
         return textPos
     
-    def plot(self, colorbar=True, **kwargs):
+    def draw_polygon(self, ax=None):
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+        vertices = self.vertices    
+        for simplex in self.hull:
+            ax.plot(vertices.values[simplex, 0], vertices.values[simplex, 1], 'k-')
+        for index, row in self.textPos.iterrows():
+            ax.text(row['x'], row['y'], index, ha=row['textHPos'], va=row['textVPos'])
+        return ax
+    
+    def image(self, colorbar=True, **kwargs):
         """
         
         Plots the data in barycentric coordinates.
@@ -172,16 +193,14 @@ class multi_bary_plot:
             The Figure, AxesSubplot and AxesImage of the plot.
 
         """
-        vertices = self.vertices    
+        if self.values is None:
+            raise ValueError('No value column supplied.')
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.set_aspect('equal', 'datalim')
         ax.axis('off')
         im = ax.imshow(self.plot_values, extent=[-1, 1, -1, 1], **kwargs)
-        for simplex in self.hull:
-            ax.plot(vertices.values[simplex, 0], vertices.values[simplex, 1], 'k-')
-        for index, row in self.textPos.iterrows():
-            ax.text(row['x'], row['y'], index, ha=row['textHPos'], va=row['textVPos'])
+        ax = self.draw_polygon(ax)
         if colorbar:
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('bottom', size='5%', pad=self.colorbar_pad)
