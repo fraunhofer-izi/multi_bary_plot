@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from multiprocess import Pool
-from tqdm import tqdm, tqdm_notebook
 from matplotlib import pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.spatial.distance import cdist
@@ -22,8 +21,6 @@ class multi_bary_plot:
         The name of the value coumn in `data`.
     res : int
         The number of pixel along one axis.
-    notebook : bool
-        If True the progress bar will be an IPython/Jupyter Notebook widget.
         
     Returns
     -------
@@ -41,8 +38,7 @@ class multi_bary_plot:
     fig, ax, im = bp.plot()
     """
 
-    def __init__(self, data, value_column=None, res=500,
-                 notebook=False):
+    def __init__(self, data, value_column=None, res=500):
         if value_column is not None and value_column not in data.columns.values:
             raise ValueError('`value_column` musste be a coumn name of `data`.')
         if not isinstance(res, (int, float)):
@@ -50,8 +46,6 @@ class multi_bary_plot:
         numerical = ['float64', 'float32', 'int64', 'int32']
         if not all([d in numerical for d in data.dtypes]):
             raise ValueError('The data needs to be numerical.')
-        if not isinstance(notebook, bool):
-            raise ValueError('`notebook` musst be boolean.')
         self.res = int(res)
         if value_column is None:
             coords = data
@@ -76,10 +70,6 @@ class multi_bary_plot:
             self.colorbar_pad = -.5
         elif (self.nverts & 1) == 0 or self.nverts > 5:
             self.colorbar_pad = .3
-        if notebook:
-            self.tqdm = tqdm_notebook
-        else:
-            self.tqdm = tqdm
     
     @property
     def grid(self):

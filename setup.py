@@ -22,7 +22,6 @@ setuptools.setup(
         'numpy',
         'pandas',
         'multiprocess',
-        'tqdm',
         'matplotlib',
         'scipy',
     ],
