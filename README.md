@@ -65,16 +65,17 @@ fig, ax, ll = bp.plot()
 ```python
 # generate data
 import numpy as np
-vec = np.pi * np.array(range(201)) / 100
+vec = np.pi * np.array(range(200)) / 100
 pos = np.sin(vec)+1
-pdat = pd.DataFrame({'class 1':pos,
-                     'class 2':np.roll(pos, 25),
-                     'class 3':np.roll(pos, 50),
-                     'class 4':np.roll(pos, 75),
-                     'class 5':np.roll(pos, 100),
-                     'class 6':np.roll(pos, 125),
-                     'class 7':np.roll(pos, 150),
-                     'class 8':np.roll(pos, 175),
+ep = (np.cos(vec*8)*.8) + 1
+pdat = pd.DataFrame({'class 1':pos**ep,
+                     'class 2':np.roll(pos, 25)**ep,
+                     'class 3':np.roll(pos, 50)**ep,
+                     'class 4':np.roll(pos, 75)**ep,
+                     'class 5':np.roll(pos, 100)**ep,
+                     'class 6':np.roll(pos, 125)**ep,
+                     'class 7':np.roll(pos, 150)**ep,
+                     'class 8':np.roll(pos, 175)**ep,
                      'val':pos*100})
 # plot
 bp = multi_bary_plot(pdat, 'val')
