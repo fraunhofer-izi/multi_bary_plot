@@ -185,5 +185,7 @@ class multi_bary_plot:
         if colorbar:
             divider = make_axes_locatable(ax)
             cax = divider.append_axes("bottom", size="5%", pad=self.colorbar_pad)
-            fig.colorbar(im, cax=cax, orientation="horizontal")
+            ticks = np.linspace(np.min(self.plot_values), np.max(self.plot_values), 6)
+            ticks = [float('{:.2g}'.format(i)) for i in ticks]
+            fig.colorbar(im, cax=cax, orientation="horizontal", ticks=ticks)
         return fig, ax, im
