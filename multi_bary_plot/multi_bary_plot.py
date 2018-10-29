@@ -57,7 +57,7 @@ class multi_bary_plot:
         norm = np.sum(coords.values, axis=1, keepdims=True)
         self.coords = coords.values / norm
         self.vertNames = list(coords.columns.values)
-        self.values = data[value_column]
+        self.values = data[value_column].values
         self.nverts = self.coords.shape[1]
         self.colorbar_pad = .1
         if self.nverts < 3:
@@ -184,8 +184,8 @@ class multi_bary_plot:
             ax.text(row['x'], row['y'], index, ha=row['textHPos'], va=row['textVPos'])
         if colorbar:
             divider = make_axes_locatable(ax)
-            cax = divider.append_axes("bottom", size="5%", pad=self.colorbar_pad)
+            cax = divider.append_axes('bottom', size='5%', pad=self.colorbar_pad)
             ticks = np.linspace(np.min(self.plot_values), np.max(self.plot_values), 6)
             ticks = [float('{:.2g}'.format(i)) for i in ticks]
-            fig.colorbar(im, cax=cax, orientation="horizontal", ticks=ticks)
+            fig.colorbar(im, cax=cax, orientation='horizontal', ticks=ticks)
         return fig, ax, im
