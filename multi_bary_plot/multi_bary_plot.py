@@ -1,7 +1,6 @@
 import warnings
 import numpy as np
 import pandas as pd
-from multiprocess import Pool
 from matplotlib import pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.spatial.distance import cdist
