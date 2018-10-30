@@ -134,21 +134,21 @@ class multi_bary_plot:
         return np.ma.masked_where(~self.in_hull, values)
 
     @property
-    def textPos(self):
+    def text_position(self):
         """Vertex label positions."""
         half = int(np.floor(self.nverts/2))
         odd = (self.nverts & 1) == 1
-        textPos = self.vertices.copy() * 1.05
-        i = textPos.index
-        textPos['textVPos'] = 'center'
-        textPos.loc[i[0], 'textVPos'] = 'bottom'
-        textPos.loc[i[half], 'textVPos'] = 'top'
+        tp = self.vertices.copy() * 1.05
+        i = tp.index
+        tp['v_align'] = 'center'
+        tp.loc[i[0], 'v_align'] = 'bottom'
+        tp.loc[i[half], 'v_align'] = 'top'
         if odd:
-            textPos.loc[i[half+1], 'textVPos'] = 'top'
-        textPos['textHPos'] = 'center'
-        textPos.loc[i[1:half], 'textHPos'] = 'left'
-        textPos.loc[i[half+1+odd:], 'textHPos']= 'right'
-        return textPos
+            tp.loc[i[half+1], 'v_align'] = 'top'
+        tp['h_align'] = 'center'
+        tp.loc[i[1:half], 'h_align'] = 'left'
+        tp.loc[i[half+1+odd:], 'h_align']= 'right'
+        return tp
 
     def draw_polygon(self, axes=None):
         if axes is None:
@@ -158,9 +158,9 @@ class multi_bary_plot:
         for simplex in self.hull:
             axes.plot(vertices.values[simplex, 0],
                     vertices.values[simplex, 1], 'k-')
-        for index, row in self.textPos.iterrows():
+        for index, row in self.text_position.iterrows():
             axes.text(row['x'], row['y'], index,
-                    ha=row['textHPos'], va=row['textVPos'])
+                    ha=row['h_align'], va=row['v_align'])
         return axes
 
     def imshow(self, colorbar=True, figure=None, axes=None, **kwargs):
