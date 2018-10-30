@@ -204,9 +204,17 @@ class multi_bary_plot:
         if colorbar:
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('bottom', size='5%', pad=.2)
-            ticks = np.linspace(np.min(self.plot_values),
-                    np.max(self.plot_values), 6)
-            ticks = [float('{:.2g}'.format(i)) for i in ticks]
+            def round_ticks(ticks):
+                return [float('{:.2g}'.format(t)) for t in ticks]
+            ub = np.max(self.plot_values)
+            lb = np.min(self.plot_values)
+            pre_ticks = np.linspace(lb, ub, 6)
+            ticks = round_ticks(pre_ticks)
+            if ticks[0] < lb:
+                pre_ticks[0] += 10**np.floor(np.log10(np.abs(lb))-1)
+            if ticks[-1] > ub:
+                pre_ticks[-1] -= 10**np.floor(np.log10(np.abs(ub))-1)
+            ticks = round_ticks(pre_ticks)
             fig.colorbar(im, cax=cax, orientation='horizontal', ticks=ticks)
         # manual limits because of masked data
         v = self.vertices
