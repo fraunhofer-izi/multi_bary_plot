@@ -23,6 +23,8 @@ class multi_bary_plot:
         The number of pixel along one axes.
     n_ticks_colorbar : int
         Number of ticks in the optional colorbars.
+    sign_ticks_colorbar : int
+        Significant figures of the colorbar ticks.
 
     Returns
     -------
@@ -40,7 +42,8 @@ class multi_bary_plot:
     fig, ax, im = bp.plot()
     """
 
-    def __init__(self, data, value_column=None, res=500, n_ticks_colorbar=7):
+    def __init__(self, data, value_column=None, res=500,
+                 n_ticks_colorbar=7, sign_ticks_colorbar=2):
         if value_column is not None and value_column not in data.columns.values:
             raise ValueError('`value_column` musste be a coumn name of `data`.')
         if not isinstance(res, (int, float)):
@@ -49,6 +52,9 @@ class multi_bary_plot:
         if not isinstance(n_ticks_colorbar, (int, float)):
             raise ValueError('n_ticks_colorbar needs to be a number.')
         self.n_ticks_colorbar = int(n_ticks_colorbar)
+        if not isinstance(sign_ticks_colorbar, (int, float)):
+            raise ValueError('sign_ticks_colorbar needs to be a number.')
+        self.sign_ticks_colorbar = int(sign_ticks_colorbar)
         numerical = ['float64', 'float32', 'int64', 'int32']
         if not all([d in numerical for d in data.dtypes]):
             raise ValueError('The data needs to be numerical.')
@@ -143,9 +149,10 @@ class multi_bary_plot:
             values = self.plot_values
         ub = np.max(values)
         lb = np.min(values)
+        form = '{:.' + str(self.sign_ticks_colorbar) + 'g}'
         def make_ticks(n):
             ticks = np.linspace(lb, ub, n)
-            return [float('{:.2g}'.format(t)) for t in ticks]
+            return [float(form.format(t)) for t in ticks]
         nticks = self.n_ticks_colorbar
         ticks = make_ticks(nticks)
         nticks += (ticks[0] < lb) + (ticks[-1] > ub)
