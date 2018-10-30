@@ -21,6 +21,8 @@ class multi_bary_plot:
         The name of the value coumn in `data`.
     res : int
         The number of pixel along one axes.
+    n_ticks_colorbar : int
+        Number of ticks in the optional colorbars.
 
     Returns
     -------
@@ -38,12 +40,15 @@ class multi_bary_plot:
     fig, ax, im = bp.plot()
     """
 
-    def __init__(self, data, value_column=None, res=500):
+    def __init__(self, data, value_column=None, res=500, n_ticks_colorbar=7):
         if value_column is not None and value_column not in data.columns.values:
             raise ValueError('`value_column` musste be a coumn name of `data`.')
         if not isinstance(res, (int, float)):
             raise ValueError('`res` musst be numerical.')
         self.res = int(res)
+        if not isinstance(n_ticks_colorbar, (int, float)):
+            raise ValueError('n_ticks_colorbar needs to be a number.')
+        self.n_ticks_colorbar = int(n_ticks_colorbar)
         numerical = ['float64', 'float32', 'int64', 'int32']
         if not all([d in numerical for d in data.dtypes]):
             raise ValueError('The data needs to be numerical.')
@@ -132,6 +137,20 @@ class multi_bary_plot:
         values = self._vals_on_grid()
         return np.ma.masked_where(~self.in_hull, values)
 
+    def get_ticks(self, values=None):
+        """The ticks in the colorbar."""
+        if values is None:
+            values = self.plot_values
+        ub = np.max(values)
+        lb = np.min(values)
+        def make_ticks(n):
+            ticks = np.linspace(lb, ub, n)
+            return [float('{:.2g}'.format(t)) for t in ticks]
+        nticks = self.n_ticks_colorbar
+        ticks = make_ticks(nticks)
+        nticks += (ticks[0] < lb) + (ticks[-1] > ub)
+        return make_ticks(nticks)
+
     @property
     def text_position(self):
         """Vertex label positions."""
@@ -204,15 +223,7 @@ class multi_bary_plot:
         if colorbar:
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('bottom', size='5%', pad=.2)
-            ub = np.max(self.plot_values)
-            lb = np.min(self.plot_values)
-            def make_ticks(n):
-                ticks = np.linspace(lb, ub, n)
-                return [float('{:.2g}'.format(t)) for t in ticks]
-            nticks = 6
-            ticks = make_ticks(nticks)
-            nticks += (ticks[0] < lb) + (ticks[-1] > ub)
-            ticks = make_ticks(nticks)
+            ticks = self.get_ticks(self.plot_values)
             fig.colorbar(im, cax=cax, orientation='horizontal', ticks=ticks)
         # manual limits because of masked data
         v = self.vertices
@@ -287,8 +298,7 @@ class multi_bary_plot:
                 vals = kwargs['c']
             else:
                 vals = self.plot_values
-            ticks = np.linspace(np.min(vals), np.max(vals), 6)
-            ticks = [float('{:.2g}'.format(i)) for i in ticks]
+            ticks = self.get_ticks(vals)
             fig.colorbar(pc, cax=cax, orientation='horizontal', ticks=ticks)
         return fig, ax, pc
 
