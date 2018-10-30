@@ -103,3 +103,159 @@ fig, ax, ll = bp2.plot()
 
 ![png](README_files/README_9_0.png)
 
+
+## Further Info
+
+
+```python
+help(multi_bary_plot)
+```
+
+    Help on class multi_bary_plot in module multi_bary_plot.multi_bary_plot:
+    
+    class multi_bary_plot(builtins.object)
+     |  This class can turn n-dimensional data into a
+     |  2-d plot with barycentric coordinates.
+     |  
+     |  Parameters
+     |  ----------
+     |  data : pandas.DataFrame
+     |      A column for the values and n columns for the n classes.
+     |  value_column : string
+     |      The name of the value coumn in `data`.
+     |  res : int
+     |      The number of pixel along one axes.
+     |  n_ticks_colorbar : int
+     |      Number of ticks in the optional colorbars.
+     |  sign_ticks_colorbar : int
+     |      Significant figures of the colorbar ticks.
+     |  
+     |  Returns
+     |  -------
+     |  multi_bary_plot : instance
+     |      An instance of the multi_bary_plot.
+     |  
+     |  Usage
+     |  -----
+     |  vec = list(range(100))
+     |  pdat = pd.DataFrame({'class 1':vec,
+     |                       'class 2':list(reversed(vec)),
+     |                       'class 3':[50]*100,
+     |                       'val':vec})
+     |  bp = multi_bary_plot(pdat, 'val')
+     |  fig, ax, im = bp.plot()
+     |  
+     |  Methods defined here:
+     |  
+     |  __init__(self, data, value_column=None, res=500, n_ticks_colorbar=7, sign_ticks_colorbar=2)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |  
+     |  draw_polygon(self, ax=None)
+     |  
+     |  get_ticks(self, values=None)
+     |      The ticks in the colorbar.
+     |  
+     |  imshow(self, colorbar=True, fig=None, ax=None, **kwargs)
+     |      Plots the data in barycentric coordinates and colors pixels
+     |      according to the closest given value.
+     |      
+     |      Parameters
+     |      ----------
+     |      colorbar : bool, optional
+     |          If true a colorbar is plotted on the bottom of the image.
+     |          Ignored if figure is None and axes is not None.
+     |      fig : matplotlib.figure, optional
+     |          The figure to plot in.
+     |      ax : matplotlib.axes, optional
+     |          The axes to plot in.
+     |      **kwargs
+     |          Other keyword arguments are passed on to
+     |          matplotlib.pyplot.imshow.
+     |      
+     |      Returns
+     |      -------
+     |      fig, ax, im
+     |          The matplotlib Figure, AxesSubplot,
+     |          and AxesImage of the plot.
+     |  
+     |  plot(self, fig=None, ax=None, **kwargs)
+     |      Plots the data in barycentric coordinates.
+     |      
+     |      Parameters
+     |      ----------
+     |      fig : matplotlib.figure, optional
+     |          The figure to plot in.
+     |      ax : matplotlib.axes, optional
+     |          The axes to plot in.
+     |      **kwargs
+     |          Other keyword arguments are passed on to
+     |          matplotlib.pyplot.plot.
+     |      
+     |      Returns
+     |      -------
+     |      fig, ax, ll
+     |          The matplotlib Figure, AxesSubplot,
+     |          and list of Line2D of the plot.
+     |  
+     |  scatter(self, color=None, colorbar=None, fig=None, ax=None, **kwargs)
+     |      Scatterplot of the data in barycentric coordinates.
+     |      
+     |      Parameters
+     |      ----------
+     |      color : bool, optional
+     |          Color points by given values. Ignored if no value column
+     |          is given.
+     |      colorbar : bool, optional
+     |          If true a colorbar is plotted on the bottom of the image.
+     |          Ignored if figure is None and axes is not None.
+     |      fige : matplotlib.figure, optional
+     |          The figure to plot in.
+     |      ax : matplotlib.axes, optional
+     |          The axes to plot in.
+     |      **kwargs
+     |          Other keyword arguments are passed on to
+     |          matplotlib.pyplot.scatter. The keyword argument c
+     |          overwrites given values in the data.
+     |      
+     |      Returns
+     |      -------
+     |      fig, ax, pc
+     |          The matplotib Figure, AxesSubplot,
+     |          and PathCollection of the plot.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+     |  
+     |  grid
+     |      The grid of pixels to raster.
+     |  
+     |  hull
+     |      The edges of the confex hull for plotting.
+     |  
+     |  in_hull
+     |      A mask of the grid for the part outside
+     |      the simplex.
+     |  
+     |  mgrid
+     |      Melted x and y coordinates of the pixel grid.
+     |  
+     |  plot_values
+     |      The Pixel colors masked to the inside of
+     |      the barycentric coordinate system.
+     |  
+     |  points_2d
+     |      The 2-d coordinates of the given values.
+     |  
+     |  text_position
+     |      Vertex label positions.
+     |  
+     |  vertices
+     |      The vertices of the barycentric coordinate system.
+    
+
