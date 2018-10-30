@@ -17,13 +17,13 @@ class multi_bary_plot:
     ----------
     data : pandas.DataFrame
         A column for the values and n columns for the n classes.
-    value_column : string
+    value_column : string, optional
         The name of the value coumn in `data`.
-    res : int
+    res : int, optional
         The number of pixel along one axes.
-    n_ticks_colorbar : int
+    n_ticks_colorbar : int, optional
         Number of ticks in the optional colorbars.
-    sign_ticks_colorbar : int
+    sign_ticks_colorbar : int, optional
         Significant figures of the colorbar ticks.
 
     Returns
