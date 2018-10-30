@@ -65,21 +65,21 @@ fig, ax, ll = bp.plot()
 ```python
 # generate data
 import numpy as np
-vec = np.pi * np.array(range(200)) / 100
-pos = np.sin(vec)+1
-ep = (np.cos(vec*8)*.8) + 1
-pdat = pd.DataFrame({'class 1':pos**ep,
-                     'class 2':np.roll(pos, 25)**ep,
-                     'class 3':np.roll(pos, 50)**ep,
-                     'class 4':np.roll(pos, 75)**ep,
-                     'class 5':np.roll(pos, 100)**ep,
-                     'class 6':np.roll(pos, 125)**ep,
-                     'class 7':np.roll(pos, 150)**ep,
-                     'class 8':np.roll(pos, 175)**ep,
-                     'val':pos*100})
+vec2 = np.pi * np.array(range(200)) / 100
+pos = np.sin(vec2)+1
+ep = np.cos(vec2*8) + 1.4
+pdat2 = pd.DataFrame({'class 1':pos**ep,
+                      'class 2':np.roll(pos, 25)**ep,
+                      'class 3':np.roll(pos, 50)**ep,
+                      'class 4':np.roll(pos, 75)**ep,
+                      'class 5':np.roll(pos, 100)**ep,
+                      'class 6':np.roll(pos, 125)**ep,
+                      'class 7':np.roll(pos, 150)**ep,
+                      'class 8':np.roll(pos, 175)**ep,
+                      'val':pos*100})
 # plot
-bp = multi_bary_plot(pdat, 'val')
-fig, ax, im = bp.imshow(cmap='plasma')
+bp2 = multi_bary_plot(pdat2, 'val')
+fig, ax, im = bp2.imshow(cmap='plasma')
 ```
 
 
@@ -88,7 +88,7 @@ fig, ax, im = bp.imshow(cmap='plasma')
 
 
 ```python
-fig, ax, sc = bp.scatter(cmap='plasma')
+fig, ax, sc = bp2.scatter(cmap='plasma', s=2)
 ```
 
 
@@ -97,7 +97,7 @@ fig, ax, sc = bp.scatter(cmap='plasma')
 
 
 ```python
-fig, ax, ll = bp.plot()
+fig, ax, ll = bp2.plot()
 ```
 
 

@@ -44,10 +44,10 @@ class multi_bary_plot:
             raise ValueError('`value_column` musste be a coumn name of `data`.')
         if not isinstance(res, (int, float)):
             raise ValueError('`res` musst be numerical.')
+        self.res = int(res)
         numerical = ['float64', 'float32', 'int64', 'int32']
         if not all([d in numerical for d in data.dtypes]):
             raise ValueError('The data needs to be numerical.')
-        self.res = int(res)
         if value_column is None:
             coords = data
             self.values = None
@@ -75,7 +75,7 @@ class multi_bary_plot:
         return np.array(np.meshgrid(x, -x))
 
     @property
-    def fgrid(self):
+    def mgrid(self):
         """Melted x and y coordinates of the pixel grid."""
         grid = self.grid
         return grid.reshape((grid.shape[0],
@@ -97,7 +97,7 @@ class multi_bary_plot:
         return ConvexHull(self.vertices).simplices
 
     @property
-    def df(self):
+    def points_2d(self):
         """The 2-d coordinates of the given values."""
         parts = np.dot(self.coords, self.vertices)
         pdat = pd.DataFrame(parts, columns=['x', 'y'])
@@ -106,23 +106,22 @@ class multi_bary_plot:
 
     def _vals_on_grid(self):
         """Returns the unmasked pixel colors."""
-        df = self.df
-        fgrid = self.fgrid
-        dist = cdist(fgrid.T, df[['x','y']].values)
+        p2 = self.points_2d
+        dist = cdist(self.mgrid.T, p2[['x','y']].values)
         ind = np.argmin(dist, axis=1)
-        vals = df['val'][ind]
+        vals = p2['val'][ind]
         return vals.values.reshape(self.grid.shape[1:])
 
     @property
     def in_hull(self):
         """A mask of the grid for the part outside
         the simplex."""
-        points = self.fgrid.T
-        inside = np.repeat(True, len(points))
+        pixel = self.mgrid.T
+        inside = np.repeat(True, len(pixel))
         for simplex in self.hull:
             vec = self.vertices.values[simplex]
             vec = vec.mean(axis=0, keepdims=True)
-            shifted = points - vec
+            shifted = pixel - vec
             below = np.dot(shifted, vec.T) < 0
             inside = np.logical_and(inside, below.T)
         return inside.reshape(self.grid.shape[1:])
@@ -157,9 +156,11 @@ class multi_bary_plot:
             axes = fig.add_subplot(111)
         vertices = self.vertices
         for simplex in self.hull:
-            axes.plot(vertices.values[simplex, 0], vertices.values[simplex, 1], 'k-')
+            axes.plot(vertices.values[simplex, 0],
+                    vertices.values[simplex, 1], 'k-')
         for index, row in self.textPos.iterrows():
-            axes.text(row['x'], row['y'], index, ha=row['textHPos'], va=row['textVPos'])
+            axes.text(row['x'], row['y'], index,
+                    ha=row['textHPos'], va=row['textVPos'])
         return axes
 
     def imshow(self, colorbar=True, figure=None, axes=None, **kwargs):
@@ -178,7 +179,7 @@ class multi_bary_plot:
         axes : matplotlib.axis, optinal
             The axes to plot in.
         **kwargs
-            All keyword arguments are passed on to matplotlib.imshow.
+            Other keyword arguments are passed on to matplotlib.imshow.
 
         Returns
         -------
@@ -202,7 +203,8 @@ class multi_bary_plot:
         if colorbar:
             divider = make_axes_locatable(axes)
             cax = divider.append_axes('bottom', size='5%', pad=.2)
-            ticks = np.linspace(np.min(self.plot_values), np.max(self.plot_values), 6)
+            ticks = np.linspace(np.min(self.plot_values),
+                    np.max(self.plot_values), 6)
             ticks = [float('{:.2g}'.format(i)) for i in ticks]
             figure.colorbar(im, cax=cax, orientation='horizontal', ticks=ticks)
         v = self.vertices
@@ -213,7 +215,8 @@ class multi_bary_plot:
         axes.set_aspect('equal')
         return figure, axes, im
 
-    def scatter(self, color=None, colorbar=None, figure=None, axes=None, **kwargs):
+    def scatter(self, color=None, colorbar=None, figure=None,
+            axes=None, **kwargs):
         """
 
         Plots the data in barycentric coordinates.
@@ -231,7 +234,7 @@ class multi_bary_plot:
         axes : matplotlib.axis, optinal
             The axes to plot in.
         **kwargs
-            All keyword arguments are passed on to matplotlib.imshow.
+            Other keyword arguments are passed on to matplotlib.scatter.
 
         Returns
         -------
@@ -239,11 +242,12 @@ class multi_bary_plot:
             The Figure, AxesSubplot and PathCollection of the plot.
 
         """
-        if color is None and self.values is not None:
+        color_info = self.values is not None or 'c' in kwargs
+        if color is None and color_info:
             color = True
         elif color is None:
             color = False
-        if color and self.values is None:
+        if color and not color_info:
             raise ValueError('No value column for color supplied.')
         if color and colorbar is None:
             colorbar = True
@@ -259,16 +263,20 @@ class multi_bary_plot:
             axes = figure.add_subplot(111)
         axes.set_aspect('equal', 'datalim')
         axes.axis('off')
-        df = self.df
-        if color:
-            pc = axes.scatter(df['x'], df['y'], c=df['val'], **kwargs)
+        p2 = self.points_2d
+        if color and 'c' not in kwargs:
+            pc = axes.scatter(p2['x'], p2['y'], c=p2['val'], **kwargs)
         else:
-            pc = axes.scatter(df['x'], df['y'], **kwargs)
+            pc = axes.scatter(p2['x'], p2['y'], **kwargs)
         axes = self.draw_polygon(axes)
         if colorbar:
             divider = make_axes_locatable(axes)
             cax = divider.append_axes('bottom', size='5%', pad=.2)
-            ticks = np.linspace(np.min(self.plot_values), np.max(self.plot_values), 6)
+            if 'c' in kwargs:
+                vals = kwargs['c']
+            else:
+                vals = self.plot_values
+            ticks = np.linspace(np.min(vals), np.max(vals), 6)
             ticks = [float('{:.2g}'.format(i)) for i in ticks]
             figure.colorbar(pc, cax=cax, orientation='horizontal', ticks=ticks)
         return figure, axes, pc
@@ -285,7 +293,7 @@ class multi_bary_plot:
         axes : matplotlib.axis, optinal
             The axes to plot in.
         **kwargs
-            All keyword arguments are passed on to matplotlib.imshow.
+            Other keyword arguments are passed on to matplotlib.plot.
 
         Returns
         -------
@@ -299,7 +307,7 @@ class multi_bary_plot:
             axes = figure.add_subplot(111)
         axes.set_aspect('equal', 'datalim')
         axes.axis('off')
-        df = self.df
-        ll = axes.plot(df['x'], df['y'], **kwargs)
+        p2 = self.points_2d
+        ll = axes.plot(p2['x'], p2['y'], **kwargs)
         axes = self.draw_polygon(axes)
         return figure, axes, ll
