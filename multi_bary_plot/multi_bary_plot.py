@@ -150,20 +150,20 @@ class multi_bary_plot:
         tp.loc[i[half+1+odd:], 'h_align']= 'right'
         return tp
 
-    def draw_polygon(self, axes=None):
-        if axes is None:
+    def draw_polygon(self, ax=None):
+        if ax is None:
             fig = plt.figure()
-            axes = fig.add_subplot(111)
+            ax = fig.add_subplot(111)
         vertices = self.vertices
         for simplex in self.hull:
-            axes.plot(vertices.values[simplex, 0],
+            ax.plot(vertices.values[simplex, 0],
                     vertices.values[simplex, 1], 'k-')
         for index, row in self.text_position.iterrows():
-            axes.text(row['x'], row['y'], index,
+            ax.text(row['x'], row['y'], index,
                     ha=row['h_align'], va=row['v_align'])
-        return axes
+        return ax
 
-    def imshow(self, colorbar=True, figure=None, axes=None, **kwargs):
+    def imshow(self, colorbar=True, fig=None, ax=None, **kwargs):
         """
 
         Plots the data in barycentric coordinates and colors pixels
@@ -174,9 +174,9 @@ class multi_bary_plot:
         colorbar : bool, optional
             If true a colorbar is plotted on the bottom of the image.
             Ignored if figure is None and axes is not None.
-        figure : matplotlib.figure, optional
+        fig : matplotlib.figure, optional
             The figure to plot in.
-        axes : matplotlib.axis, optinal
+        ax : matplotlib.axes, optional
             The axes to plot in.
         **kwargs
             Other keyword arguments are passed on to
@@ -184,42 +184,42 @@ class multi_bary_plot:
 
         Returns
         -------
-        figure, axes, im
+        fig, ax, im
             The matplotlib Figure, AxesSubplot,
             and AxesImage of the plot.
 
         """
         if self.values is None:
             raise ValueError('No value column supplied.')
-        if figure is None and axes is not None and colorbar:
+        if fig is None and ax is not None and colorbar:
             warnings.warn('axes but no figure is supplied,'
-                          + ' so a colorbar cannot be returned.')
+                          + ' so a colorbar cannot be plotted.')
             colorbar = False
-        elif figure is None and axes is None:
-            figure = plt.figure()
-        if axes is None:
-            axes = figure.add_subplot(111)
-        axes.axis('off')
-        im = axes.imshow(self.plot_values, extent=[-1, 1, -1, 1], **kwargs)
-        axes = self.draw_polygon(axes)
+        elif fig is None and ax is None:
+            fig = plt.figure()
+        if ax is None:
+            ax = fig.add_subplot(111)
+        ax.axis('off')
+        im = ax.imshow(self.plot_values, extent=[-1, 1, -1, 1], **kwargs)
+        ax = self.draw_polygon(ax)
         if colorbar:
-            divider = make_axes_locatable(axes)
+            divider = make_axes_locatable(ax)
             cax = divider.append_axes('bottom', size='5%', pad=.2)
             ticks = np.linspace(np.min(self.plot_values),
                     np.max(self.plot_values), 6)
             ticks = [float('{:.2g}'.format(i)) for i in ticks]
-            figure.colorbar(im, cax=cax, orientation='horizontal', ticks=ticks)
+            fig.colorbar(im, cax=cax, orientation='horizontal', ticks=ticks)
         # manual limits because of masked data
         v = self.vertices
         xpad =  (v['x'].max()-v['x'].min()) * .05
-        axes.set_xlim([v['x'].min()-xpad, v['x'].max()+xpad])
+        ax.set_xlim([v['x'].min()-xpad, v['x'].max()+xpad])
         ypad =  (v['y'].max()-v['y'].min()) * .05
-        axes.set_ylim([v['y'].min()-ypad, v['y'].max()+ypad])
-        axes.set_aspect('equal')
-        return figure, axes, im
+        ax.set_ylim([v['y'].min()-ypad, v['y'].max()+ypad])
+        ax.set_aspect('equal')
+        return fig, ax, im
 
-    def scatter(self, color=None, colorbar=None, figure=None,
-            axes=None, **kwargs):
+    def scatter(self, color=None, colorbar=None, fig=None,
+            ax=None, **kwargs):
         """
 
         Scatterplot of the data in barycentric coordinates.
@@ -232,9 +232,9 @@ class multi_bary_plot:
         colorbar : bool, optional
             If true a colorbar is plotted on the bottom of the image.
             Ignored if figure is None and axes is not None.
-        figure : matplotlib.figure, optional
+        fige : matplotlib.figure, optional
             The figure to plot in.
-        axes : matplotlib.axis, optinal
+        ax : matplotlib.axes, optional
             The axes to plot in.
         **kwargs
             Other keyword arguments are passed on to
@@ -243,7 +243,7 @@ class multi_bary_plot:
 
         Returns
         -------
-        figure, axes, pc
+        fig, ax, pc
             The matplotib Figure, AxesSubplot,
             and PathCollection of the plot.
 
@@ -259,24 +259,24 @@ class multi_bary_plot:
             colorbar = True
         elif colorbar is None:
             colorbar = False
-        if figure is None and axes is not None and colorbar:
+        if fig is None and ax is not None and colorbar:
             warnings.warn('axes but no figure is supplied,'
-                          + ' so a colorbar cannot be returned.')
+                          + ' so a colorbar cannot be plotted.')
             colorbar = False
-        elif figure is None and axes is None:
-            figure = plt.figure()
-        if axes is None:
-            axes = figure.add_subplot(111)
-        axes.set_aspect('equal', 'datalim')
-        axes.axis('off')
+        elif fig is None and ax is None:
+            fig = plt.figure()
+        if ax is None:
+            ax = fig.add_subplot(111)
+        ax.set_aspect('equal', 'datalim')
+        ax.axis('off')
         p2 = self.points_2d
         if color and 'c' not in kwargs:
-            pc = axes.scatter(p2['x'], p2['y'], c=p2['val'], **kwargs)
+            pc = ax.scatter(p2['x'], p2['y'], c=p2['val'], **kwargs)
         else:
-            pc = axes.scatter(p2['x'], p2['y'], **kwargs)
-        axes = self.draw_polygon(axes)
+            pc = ax.scatter(p2['x'], p2['y'], **kwargs)
+        ax = self.draw_polygon(ax)
         if colorbar:
-            divider = make_axes_locatable(axes)
+            divider = make_axes_locatable(ax)
             cax = divider.append_axes('bottom', size='5%', pad=.2)
             if 'c' in kwargs:
                 vals = kwargs['c']
@@ -284,19 +284,19 @@ class multi_bary_plot:
                 vals = self.plot_values
             ticks = np.linspace(np.min(vals), np.max(vals), 6)
             ticks = [float('{:.2g}'.format(i)) for i in ticks]
-            figure.colorbar(pc, cax=cax, orientation='horizontal', ticks=ticks)
-        return figure, axes, pc
+            fig.colorbar(pc, cax=cax, orientation='horizontal', ticks=ticks)
+        return fig, ax, pc
 
-    def plot(self, figure=None, axes=None, **kwargs):
+    def plot(self, fig=None, ax=None, **kwargs):
         """
 
         Plots the data in barycentric coordinates.
 
         Parameters
         ----------
-        figure : matplotlib.figure, optional
+        fig : matplotlib.figure, optional
             The figure to plot in.
-        axes : matplotlib.axis, optinal
+        ax : matplotlib.axes, optional
             The axes to plot in.
         **kwargs
             Other keyword arguments are passed on to
@@ -304,18 +304,18 @@ class multi_bary_plot:
 
         Returns
         -------
-        figure, axes, ll
+        fig, ax, ll
             The matplotlib Figure, AxesSubplot,
             and list of Line2D of the plot.
 
         """
-        if figure is None and axes is None:
-            figure = plt.figure()
-        if axes is None:
-            axes = figure.add_subplot(111)
-        axes.set_aspect('equal', 'datalim')
-        axes.axis('off')
+        if fig is None and ax is None:
+            fig = plt.figure()
+        if ax is None:
+            ax = fig.add_subplot(111)
+        ax.set_aspect('equal', 'datalim')
+        ax.axis('off')
         p2 = self.points_2d
-        ll = axes.plot(p2['x'], p2['y'], **kwargs)
-        axes = self.draw_polygon(axes)
-        return figure, axes, ll
+        ll = ax.plot(p2['x'], p2['y'], **kwargs)
+        ax = self.draw_polygon(ax)
+        return fig, ax, ll
