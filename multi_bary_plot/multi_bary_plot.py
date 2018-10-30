@@ -166,8 +166,8 @@ class multi_bary_plot:
     def imshow(self, colorbar=True, figure=None, axes=None, **kwargs):
         """
 
-        Plots the data in barycentric coordinates and colors pixel
-        with closest given value.
+        Plots the data in barycentric coordinates and colors pixels
+        according to the closest given value.
 
         Parameters
         ----------
@@ -185,7 +185,8 @@ class multi_bary_plot:
         Returns
         -------
         figure, axes, im
-            The Figure, AxesSubplot and AxesImage of the plot.
+            The matplotlib Figure, AxesSubplot,
+            and AxesImage of the plot.
 
         """
         if self.values is None:
@@ -220,7 +221,7 @@ class multi_bary_plot:
             axes=None, **kwargs):
         """
 
-        Plots the data in barycentric coordinates.
+        Scatterplot of the data in barycentric coordinates.
 
         Parameters
         ----------
@@ -236,12 +237,14 @@ class multi_bary_plot:
             The axes to plot in.
         **kwargs
             Other keyword arguments are passed on to
-            matplotlib.pyplot.scatter.
+            matplotlib.pyplot.scatter. The keyword argument c
+            overwrites given values in the data.
 
         Returns
         -------
         figure, axes, pc
-            The Figure, AxesSubplot and PathCollection of the plot.
+            The matplotib Figure, AxesSubplot,
+            and PathCollection of the plot.
 
         """
         color_info = self.values is not None or 'c' in kwargs
@@ -301,7 +304,8 @@ class multi_bary_plot:
         Returns
         -------
         figure, axes, ll
-            The Figure, AxesSubplot and list of Line2D of the plot.
+            The matplotlib Figure, AxesSubplot,
+            and list of Line2D of the plot.
 
         """
         if figure is None and axes is None:
