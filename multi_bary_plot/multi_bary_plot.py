@@ -16,15 +16,18 @@ class multi_bary_plot:
     Parameters
     ----------
     data : pandas.DataFrame
-        A column for the values and n columns for the n classes.
+        Coordinates in at least 3 dimensions and an optional
+        value column.
     value_column : string, optional
-        The name of the value coumn in `data`.
+        The name of the optional value column in the data.
+        If no value column is given, imshow is not available
+        and scatter does not color the points automatically.
     res : int, optional
-        The number of pixel along one axes.
+        The number of pixels along one axes; defaults to 500.
     n_ticks_colorbar : int, optional
-        Number of ticks in the optional colorbars.
+        Number of ticks in the optional colorbars; defaults to 7.
     sign_ticks_colorbar : int, optional
-        Significant figures of the colorbar ticks.
+        Significant figures of the colorbar ticks; defaults to 2.
 
     Returns
     -------
@@ -80,7 +83,7 @@ class multi_bary_plot:
 
     @property
     def grid(self):
-        """The grid of pixels to raster."""
+        """The grid of pixels to raster in imshow."""
         x = np.linspace(-1, 1, self.res)
         return np.array(np.meshgrid(x, -x))
 
@@ -108,7 +111,7 @@ class multi_bary_plot:
 
     @property
     def points_2d(self):
-        """The 2-d coordinates of the given values."""
+        """The 2-d coordinates of the given data."""
         parts = np.dot(self.coords, self.vertices)
         pdat = pd.DataFrame(parts, columns=['x', 'y'])
         pdat['val'] = self.values
@@ -160,7 +163,7 @@ class multi_bary_plot:
 
     @property
     def text_position(self):
-        """Vertex label positions."""
+        """Dimensions label positions in plot."""
         half = int(np.floor(self.nverts/2))
         odd = (self.nverts & 1) == 1
         tp = self.vertices.copy() * 1.05
@@ -176,6 +179,7 @@ class multi_bary_plot:
         return tp
 
     def draw_polygon(self, ax=None):
+        """Draws the axes and lables of the coordinate system."""
         if ax is None:
             fig = plt.figure()
             ax = fig.add_subplot(111)
