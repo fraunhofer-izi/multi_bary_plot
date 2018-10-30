@@ -179,7 +179,8 @@ class multi_bary_plot:
         axes : matplotlib.axis, optinal
             The axes to plot in.
         **kwargs
-            Other keyword arguments are passed on to matplotlib.imshow.
+            Other keyword arguments are passed on to
+            matplotlib.pyplot.imshow.
 
         Returns
         -------
@@ -234,7 +235,8 @@ class multi_bary_plot:
         axes : matplotlib.axis, optinal
             The axes to plot in.
         **kwargs
-            Other keyword arguments are passed on to matplotlib.scatter.
+            Other keyword arguments are passed on to
+            matplotlib.pyplot.scatter.
 
         Returns
         -------
@@ -293,7 +295,8 @@ class multi_bary_plot:
         axes : matplotlib.axis, optinal
             The axes to plot in.
         **kwargs
-            Other keyword arguments are passed on to matplotlib.plot.
+            Other keyword arguments are passed on to
+            matplotlib.pyplot.plot.
 
         Returns
         -------
