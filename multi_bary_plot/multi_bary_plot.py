@@ -209,11 +209,12 @@ class multi_bary_plot:
                     np.max(self.plot_values), 6)
             ticks = [float('{:.2g}'.format(i)) for i in ticks]
             figure.colorbar(im, cax=cax, orientation='horizontal', ticks=ticks)
+        # manual limits because of masked data
         v = self.vertices
-        xlen =  v['x'].max() - v['x'].min()
-        axes.set_xlim([v['x'].min()-(xlen*.05), v['x'].max()+(xlen*.05)])
-        ylen =  v['y'].max() - v['y'].min()
-        axes.set_ylim([v['y'].min()-(ylen*.05), v['y'].max()+(ylen*.05)])
+        xpad =  (v['x'].max()-v['x'].min()) * .05
+        axes.set_xlim([v['x'].min()-xpad, v['x'].max()+xpad])
+        ypad =  (v['y'].max()-v['y'].min()) * .05
+        axes.set_ylim([v['y'].min()-ypad, v['y'].max()+ypad])
         axes.set_aspect('equal')
         return figure, axes, im
 
