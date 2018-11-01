@@ -17,7 +17,7 @@ pip install git+ssh://git@ribogit.izi.fraunhofer.de/Dominik/multi_bary_plot.git
 
 
 ```python
-from multi_bary_plot import multi_bary_plot
+from multi_bary_plot import GenBary
 import pandas as pd
 ```
 
@@ -33,7 +33,7 @@ pdat = pd.DataFrame({'class 1':vec,
                      'val':vec})
 
 # plot
-bp = multi_bary_plot(pdat, 'val')
+bp = GenBary(pdat, 'val')
 fig, ax, im = bp.imshow()
 ```
 
@@ -78,7 +78,7 @@ pdat2 = pd.DataFrame({'class 1':pos**ep,
                       'class 8':np.roll(pos, 175)**ep,
                       'val':pos*100})
 # plot
-bp2 = multi_bary_plot(pdat2, 'val')
+bp2 = GenBary(pdat2, 'val')
 fig, ax, im = bp2.imshow(cmap='plasma')
 ```
 
@@ -108,32 +108,35 @@ fig, ax, ll = bp2.plot()
 
 
 ```python
-help(multi_bary_plot)
+help(GenBary)
 ```
 
-    Help on class multi_bary_plot in module multi_bary_plot.multi_bary_plot:
+    Help on class GenBary in module multi_bary_plot.multi_bary_plot:
     
-    class multi_bary_plot(builtins.object)
+    class GenBary(builtins.object)
      |  This class can turn n-dimensional data into a
-     |  2-d plot with barycentric coordinates.
+     |  2-d plot with generalized barycentric coordinates.
      |  
      |  Parameters
      |  ----------
      |  data : pandas.DataFrame
-     |      A column for the values and n columns for the n classes.
-     |  value_column : string
-     |      The name of the value coumn in `data`.
-     |  res : int
-     |      The number of pixel along one axes.
-     |  n_ticks_colorbar : int
-     |      Number of ticks in the optional colorbars.
-     |  sign_ticks_colorbar : int
-     |      Significant figures of the colorbar ticks.
+     |      Coordinates in at least 3 dimensions and an optional
+     |      value column.
+     |  value_column : string, optional
+     |      The name of the optional value column in the data.
+     |      If no value column is given, imshow is not available
+     |      and scatter does not color the points automatically.
+     |  res : int, optional
+     |      The number of pixels along one axes; defaults to 500.
+     |  n_ticks_colorbar : int, optional
+     |      Number of ticks in the optional colorbars; defaults to 7.
+     |  sign_ticks_colorbar : int, optional
+     |      Significant figures of the colorbar ticks; defaults to 2.
      |  
      |  Returns
      |  -------
-     |  multi_bary_plot : instance
-     |      An instance of the multi_bary_plot.
+     |  GenBary : instance
+     |      An instance of the GenBary.
      |  
      |  Usage
      |  -----
@@ -142,7 +145,7 @@ help(multi_bary_plot)
      |                       'class 2':list(reversed(vec)),
      |                       'class 3':[50]*100,
      |                       'val':vec})
-     |  bp = multi_bary_plot(pdat, 'val')
+     |  bp = GenBary(pdat, 'val')
      |  fig, ax, im = bp.plot()
      |  
      |  Methods defined here:
@@ -151,9 +154,25 @@ help(multi_bary_plot)
      |      Initialize self.  See help(type(self)) for accurate signature.
      |  
      |  draw_polygon(self, ax=None)
+     |      Draws the axes and lables of the coordinate system.
      |  
-     |  get_ticks(self, values=None)
-     |      The ticks in the colorbar.
+     |  get_ticks(self, values=None, nticks=None, sign=None)
+     |      Returns the ticks for the colorbar and the given values.
+     |      
+     |      Parameters
+     |      ----------
+     |      values : array, optional
+     |          An array of values that includes the maximum and
+     |          minimum of values that are represented as colors in the plot.
+     |      nticks : int, optional
+     |          Number of ticks.
+     |      sign : int, optional
+     |          Figures of significants of the tick values.
+     |      
+     |      Returns
+     |      -------
+     |      ticks : list
+     |          A list of values for the colorbar ticks.
      |  
      |  imshow(self, colorbar=True, fig=None, ax=None, **kwargs)
      |      Plots the data in barycentric coordinates and colors pixels
@@ -233,7 +252,7 @@ help(multi_bary_plot)
      |      list of weak references to the object (if defined)
      |  
      |  grid
-     |      The grid of pixels to raster.
+     |      The grid of pixels to raster in imshow.
      |  
      |  hull
      |      The edges of the confex hull for plotting.
@@ -250,10 +269,10 @@ help(multi_bary_plot)
      |      the barycentric coordinate system.
      |  
      |  points_2d
-     |      The 2-d coordinates of the given values.
+     |      The 2-d coordinates of the given points.
      |  
      |  text_position
-     |      Vertex label positions.
+     |      Dimensions label positions in plot.
      |  
      |  vertices
      |      The vertices of the barycentric coordinate system.

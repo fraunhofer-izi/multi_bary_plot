@@ -1,17 +1,20 @@
+"""
+This module provides the GenBary class to visualize high dimensional
+data in 2 dimensions using generalized barycentric coordinates.
+"""
 import warnings
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.spatial.distance import cdist
-from scipy.optimize import linprog
 from scipy.spatial import ConvexHull
 
-class multi_bary_plot:
+class GenBary:
     """
 
     This class can turn n-dimensional data into a
-    2-d plot with barycentric coordinates.
+    2-d plot with generalized barycentric coordinates.
 
     Parameters
     ----------
@@ -31,8 +34,8 @@ class multi_bary_plot:
 
     Returns
     -------
-    multi_bary_plot : instance
-        An instance of the multi_bary_plot.
+    GenBary : instance
+        An instance of the GenBary.
 
     Usage
     -----
@@ -41,7 +44,7 @@ class multi_bary_plot:
                          'class 2':list(reversed(vec)),
                          'class 3':[50]*100,
                          'val':vec})
-    bp = multi_bary_plot(pdat, 'val')
+    bp = GenBary(pdat, 'val')
     fig, ax, im = bp.plot()
     """
 
@@ -68,15 +71,15 @@ class multi_bary_plot:
             coords = data.drop([value_column], axis=1)
             self.values = data[value_column].values
         norm = np.sum(coords.values, axis=1, keepdims=True)
-        ind = np.sum(np.isnan(coords), axis=1)==0
-        ind = np.logical_and(ind, (norm!=0).flatten())
+        ind = np.sum(np.isnan(coords), axis=1) == 0
+        ind = np.logical_and(ind, (norm != 0).flatten())
         if self.values is not None:
             ind = np.logical_and(ind, ~np.isnan(self.values))
             self.values = self.values[ind]
         norm = norm[ind]
         coords = coords[ind]
         self.coords = coords.values / norm
-        self.vertNames = list(coords.columns.values)
+        self.vert_names = list(coords.columns.values)
         self.nverts = self.coords.shape[1]
         if self.nverts < 3:
             raise ValueError('At least three dimensions are needed.')
@@ -85,7 +88,7 @@ class multi_bary_plot:
     def grid(self):
         """The grid of pixels to raster in imshow."""
         x = np.linspace(-1, 1, self.res)
-        return np.array(np.meshgrid(x, -x))
+        return np.array(np.meshgrid(x, 0-x))
 
     @property
     def mgrid(self):
@@ -101,7 +104,7 @@ class multi_bary_plot:
         angles = np.array(range(n))*np.pi*2/n
         vertices = [[np.sin(a), np.cos(a)] for a in angles]
         vertices = pd.DataFrame(vertices, columns=['x', 'y'],
-                                index=self.vertNames)
+                                index=self.vert_names)
         return vertices
 
     @property
@@ -120,7 +123,7 @@ class multi_bary_plot:
     def _vals_on_grid(self):
         """The unmasked pixel colors."""
         p2 = self.points_2d
-        dist = cdist(self.mgrid.T, p2[['x','y']].values)
+        dist = cdist(self.mgrid.T, p2[['x', 'y']].values)
         ind = np.argmin(dist, axis=1)
         vals = p2['val'][ind]
         return vals.values.reshape(self.grid.shape[1:])
@@ -148,8 +151,8 @@ class multi_bary_plot:
 
     def get_ticks(self, values=None, nticks=None, sign=None):
         """
-        Returns the ticks in the colorbar for the given values.
-        
+        Returns the ticks for the colorbar and the given values.
+
         Parameters
         ----------
         values : array, optional
@@ -201,7 +204,7 @@ class multi_bary_plot:
             tp.loc[i[half+1], 'v_align'] = 'top'
         tp['h_align'] = 'center'
         tp.loc[i[1:half], 'h_align'] = 'left'
-        tp.loc[i[half+1+odd:], 'h_align']= 'right'
+        tp.loc[i[half+1+odd:], 'h_align'] = 'right'
         return tp
 
     def draw_polygon(self, ax=None):
@@ -264,15 +267,15 @@ class multi_bary_plot:
             fig.colorbar(im, cax=cax, orientation='horizontal', ticks=ticks)
         # manual limits because of masked data
         v = self.vertices
-        xpad =  (v['x'].max()-v['x'].min()) * .05
+        xpad = (v['x'].max()-v['x'].min()) * .05
         ax.set_xlim([v['x'].min()-xpad, v['x'].max()+xpad])
-        ypad =  (v['y'].max()-v['y'].min()) * .05
+        ypad = (v['y'].max()-v['y'].min()) * .05
         ax.set_ylim([v['y'].min()-ypad, v['y'].max()+ypad])
         ax.set_aspect('equal')
         return fig, ax, im
 
     def scatter(self, color=None, colorbar=None, fig=None,
-            ax=None, **kwargs):
+                ax=None, **kwargs):
         """
 
         Scatterplot of the data in barycentric coordinates.
@@ -301,7 +304,7 @@ class multi_bary_plot:
             and PathCollection of the plot.
 
         """
-        color_info = self.values is not None or 'c' in kwargs
+        color_info = self.values is not None or 'c' in kwargs.keys()
         if color is None and color_info:
             color = True
         elif color is None:
@@ -323,7 +326,7 @@ class multi_bary_plot:
         ax.set_aspect('equal', 'datalim')
         ax.axis('off')
         p2 = self.points_2d
-        if color and 'c' not in kwargs:
+        if color and 'c' not in kwargs.keys():
             pc = ax.scatter(p2['x'], p2['y'], c=p2['val'], **kwargs)
         else:
             pc = ax.scatter(p2['x'], p2['y'], **kwargs)
@@ -331,7 +334,7 @@ class multi_bary_plot:
         if colorbar:
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('bottom', size='5%', pad=.2)
-            if 'c' in kwargs:
+            if 'c' in kwargs.keys():
                 vals = kwargs['c']
             else:
                 vals = self.plot_values
