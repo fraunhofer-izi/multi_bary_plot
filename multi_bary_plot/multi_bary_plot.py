@@ -111,14 +111,14 @@ class multi_bary_plot:
 
     @property
     def points_2d(self):
-        """The 2-d coordinates of the given data."""
+        """The 2-d coordinates of the given points."""
         parts = np.dot(self.coords, self.vertices)
         pdat = pd.DataFrame(parts, columns=['x', 'y'])
         pdat['val'] = self.values
         return pdat
 
     def _vals_on_grid(self):
-        """Returns the unmasked pixel colors."""
+        """The unmasked pixel colors."""
         p2 = self.points_2d
         dist = cdist(self.mgrid.T, p2[['x','y']].values)
         ind = np.argmin(dist, axis=1)
@@ -146,17 +146,43 @@ class multi_bary_plot:
         values = self._vals_on_grid()
         return np.ma.masked_where(~self.in_hull, values)
 
-    def get_ticks(self, values=None):
-        """The ticks in the colorbar."""
+    def get_ticks(self, values=None, nticks=None, sign=None):
+        """
+        Returns the ticks in the colorbar for the given values.
+        
+        Parameters
+        ----------
+        values : array, optional
+            An array of values that includes the maximum and
+            minimum of values that are represented as colors in the plot.
+        nticks : int, optional
+            Number of ticks.
+        sign : int, optional
+            Figures of significants of the tick values.
+
+        Returns
+        -------
+        ticks : list
+            A list of values for the colorbar ticks.
+        """
         if values is None:
             values = self.plot_values
+        if nticks is None:
+            nticks = self.n_ticks_colorbar
+        elif not isinstance(nticks, (int, float)):
+            raise ValueError('`nticks` musst be numerical.')
+        nticks = int(nticks)
+        if sign is None:
+            sign = self.sign_ticks_colorbar
+        elif not isinstance(sign, (int, float)):
+            raise ValueError('`sign` musst be numerical.')
+        sign = int(self.sign_ticks_colorbar)
         ub = np.max(values)
         lb = np.min(values)
-        form = '{:.' + str(self.sign_ticks_colorbar) + 'g}'
+        form = '{:.' + str(sign) + 'g}'
         def make_ticks(n):
             ticks = np.linspace(lb, ub, n)
             return [float(form.format(t)) for t in ticks]
-        nticks = self.n_ticks_colorbar
         ticks = make_ticks(nticks)
         nticks += (ticks[0] < lb) + (ticks[-1] > ub)
         return make_ticks(nticks)
