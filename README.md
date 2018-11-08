@@ -123,15 +123,17 @@ help(GenBary)
      |      Coordinates in at least 3 dimensions and an optional
      |      value column.
      |  value_column : string, optional
-     |      The name of the optional value column in the data.
-     |      If no value column is given, imshow is not available
-     |      and scatter does not color the points automatically.
+     |      The name of the optional value column in the `data`.
+     |      If no value column is given, `imshow` is not available
+     |      and `scatter` does not color the points automatically.
+     |  coordinate_columns : list of strings, optional
+     |      The coloumns of data that contain the positional values.
+     |      If None is given, all columns but the `value_column` are
+     |      used as `coordinate_columns`.
      |  res : int, optional
      |      The number of pixels along one axes; defaults to 500.
-     |  n_ticks_colorbar : int, optional
-     |      Number of ticks in the optional colorbars; defaults to 7.
-     |  sign_ticks_colorbar : int, optional
-     |      Significant figures of the colorbar ticks; defaults to 2.
+     |  ticks : list of numericals, optional
+     |      The ticks of the colorbar.
      |  
      |  Returns
      |  -------
@@ -150,29 +152,11 @@ help(GenBary)
      |  
      |  Methods defined here:
      |  
-     |  __init__(self, data, value_column=None, res=500, n_ticks_colorbar=7, sign_ticks_colorbar=2)
+     |  __init__(self, data, value_column=None, coordinate_columns=None, res=500, ticks=None)
      |      Initialize self.  See help(type(self)) for accurate signature.
      |  
      |  draw_polygon(self, ax=None)
      |      Draws the axes and lables of the coordinate system.
-     |  
-     |  get_ticks(self, values=None, nticks=None, sign=None)
-     |      Returns the ticks for the colorbar and the given values.
-     |      
-     |      Parameters
-     |      ----------
-     |      values : array, optional
-     |          An array of values that includes the maximum and
-     |          minimum of values that are represented as colors in the plot.
-     |      nticks : int, optional
-     |          Number of ticks.
-     |      sign : int, optional
-     |          Figures of significants of the tick values.
-     |      
-     |      Returns
-     |      -------
-     |      ticks : list
-     |          A list of values for the colorbar ticks.
      |  
      |  imshow(self, colorbar=True, fig=None, ax=None, **kwargs)
      |      Plots the data in barycentric coordinates and colors pixels

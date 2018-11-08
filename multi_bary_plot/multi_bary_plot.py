@@ -22,19 +22,17 @@ class GenBary:
         Coordinates in at least 3 dimensions and an optional
         value column.
     value_column : string, optional
-        The name of the optional value column in the data.
-        If no value column is given, imshow is not available
-        and scatter does not color the points automatically.
-    coordinate_columns : string list, optional
+        The name of the optional value column in the `data`.
+        If no value column is given, `imshow` is not available
+        and `scatter` does not color the points automatically.
+    coordinate_columns : list of strings, optional
         The coloumns of data that contain the positional values.
-        If None is given, all columns but the value_column are
-        used as coordinate_columns.
+        If None is given, all columns but the `value_column` are
+        used as `coordinate_columns`.
     res : int, optional
         The number of pixels along one axes; defaults to 500.
-    n_ticks_colorbar : int, optional
-        Number of ticks in the optional colorbars; defaults to 7.
-    sign_ticks_colorbar : int, optional
-        Significant figures of the colorbar ticks; defaults to 2.
+    ticks : list of numericals, optional
+        The ticks of the colorbar.
 
     Returns
     -------
@@ -53,7 +51,7 @@ class GenBary:
     """
 
     def __init__(self, data, value_column=None, coordinate_columns=None,
-                 res=500, n_ticks_colorbar=7, sign_ticks_colorbar=2):
+                 res=500, ticks=None):
         if value_column is not None and value_column not in data.columns.values:
             raise ValueError('`value_column` musste be a column name of `data`.')
         if (coordinate_columns is not None and
@@ -67,12 +65,6 @@ class GenBary:
         if not isinstance(res, (int, float)):
             raise ValueError('`res` musst be numerical.')
         self.res = int(res)
-        if not isinstance(n_ticks_colorbar, (int, float)):
-            raise ValueError('n_ticks_colorbar musst be a number.')
-        self.n_ticks_colorbar = int(n_ticks_colorbar)
-        if not isinstance(sign_ticks_colorbar, (int, float)):
-            raise ValueError('sign_ticks_colorbar musst be a number.')
-        self.sign_ticks_colorbar = int(sign_ticks_colorbar)
         numerical = ['float64', 'float32', 'int64', 'int32']
         if not all([d in numerical for d in data.dtypes]):
             raise ValueError('The data musst be numerical.')
@@ -88,6 +80,7 @@ class GenBary:
         else:
             coords = data[coordinate_columns]
             self.values = data[value_column].values
+        self.ticks = ticks
         norm = np.sum(coords.values, axis=1, keepdims=True)
         ind = np.sum(np.isnan(coords), axis=1) == 0
         ind = np.logical_and(ind, (norm != 0).flatten())
@@ -167,47 +160,6 @@ class GenBary:
         values = self._vals_on_grid()
         return np.ma.masked_where(~self.in_hull, values)
 
-    def get_ticks(self, values=None, nticks=None, sign=None):
-        """
-        Returns the ticks for the colorbar and the given values.
-
-        Parameters
-        ----------
-        values : array, optional
-            An array of values that includes the maximum and
-            minimum of values that are represented as colors in the plot.
-        nticks : int, optional
-            Number of ticks.
-        sign : int, optional
-            Figures of significants of the tick values.
-
-        Returns
-        -------
-        ticks : list
-            A list of values for the colorbar ticks.
-        """
-        if values is None:
-            values = self.plot_values
-        if nticks is None:
-            nticks = self.n_ticks_colorbar
-        elif not isinstance(nticks, (int, float)):
-            raise ValueError('`nticks` musst be numerical.')
-        nticks = int(nticks)
-        if sign is None:
-            sign = self.sign_ticks_colorbar
-        elif not isinstance(sign, (int, float)):
-            raise ValueError('`sign` musst be numerical.')
-        sign = int(self.sign_ticks_colorbar)
-        ub = np.max(values)
-        lb = np.min(values)
-        form = '{:.' + str(sign) + 'g}'
-        def make_ticks(n):
-            ticks = np.linspace(lb, ub, n)
-            return [float(form.format(t)) for t in ticks]
-        ticks = make_ticks(nticks)
-        nticks += (ticks[0] < lb) + (ticks[-1] > ub)
-        return make_ticks(nticks)
-
     @property
     def text_position(self):
         """Dimensions label positions in plot."""
@@ -281,8 +233,7 @@ class GenBary:
         if colorbar:
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('bottom', size='5%', pad=.2)
-            ticks = self.get_ticks(self.plot_values)
-            fig.colorbar(im, cax=cax, orientation='horizontal', ticks=ticks)
+            fig.colorbar(im, cax=cax, orientation='horizontal', ticks=self.ticks)
         # manual limits because of masked data
         v = self.vertices
         xpad = (v['x'].max()-v['x'].min()) * .05
@@ -356,8 +307,7 @@ class GenBary:
                 vals = kwargs['c']
             else:
                 vals = self.plot_values
-            ticks = self.get_ticks(vals)
-            fig.colorbar(pc, cax=cax, orientation='horizontal', ticks=ticks)
+            fig.colorbar(pc, cax=cax, orientation='horizontal', ticks=self.ticks)
         return fig, ax, pc
 
     def plot(self, fig=None, ax=None, **kwargs):
