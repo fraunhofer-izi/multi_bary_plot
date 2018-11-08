@@ -25,6 +25,10 @@ class GenBary:
         The name of the optional value column in the data.
         If no value column is given, imshow is not available
         and scatter does not color the points automatically.
+    coordinate_columns : string list, optional
+        The coloumns of data that contain the positional values.
+        If None is given, all columns but the value_column are
+        used as coordinate_columns.
     res : int, optional
         The number of pixels along one axes; defaults to 500.
     n_ticks_colorbar : int, optional
@@ -48,27 +52,41 @@ class GenBary:
     fig, ax, im = bp.plot()
     """
 
-    def __init__(self, data, value_column=None, res=500,
-                 n_ticks_colorbar=7, sign_ticks_colorbar=2):
+    def __init__(self, data, value_column=None, coordinate_columns=None,
+                 res=500, n_ticks_colorbar=7, sign_ticks_colorbar=2):
         if value_column is not None and value_column not in data.columns.values:
-            raise ValueError('`value_column` musste be a coumn name of `data`.')
+            raise ValueError('`value_column` musste be a column name of `data`.')
+        if (coordinate_columns is not None and
+            (not isinstance(coordinate_columns, list) or
+            len(coordinate_columns) < 3)):
+            raise ValueError('`coordinate_columns` musste be a list of at least '
+                             + 'three column names of `data`.')
+        if (coordinate_columns is not None and
+            not all([cc in data.columns.values for cc in coordinate_columns])):
+            raise ValueError('All `coordinate_columns` musste be column names of `data`.')
         if not isinstance(res, (int, float)):
             raise ValueError('`res` musst be numerical.')
         self.res = int(res)
         if not isinstance(n_ticks_colorbar, (int, float)):
-            raise ValueError('n_ticks_colorbar needs to be a number.')
+            raise ValueError('n_ticks_colorbar musst be a number.')
         self.n_ticks_colorbar = int(n_ticks_colorbar)
         if not isinstance(sign_ticks_colorbar, (int, float)):
-            raise ValueError('sign_ticks_colorbar needs to be a number.')
+            raise ValueError('sign_ticks_colorbar musst be a number.')
         self.sign_ticks_colorbar = int(sign_ticks_colorbar)
         numerical = ['float64', 'float32', 'int64', 'int32']
         if not all([d in numerical for d in data.dtypes]):
-            raise ValueError('The data needs to be numerical.')
-        if value_column is None:
+            raise ValueError('The data musst be numerical.')
+        if value_column is None and coordinate_columns is None:
             coords = data
             self.values = None
-        else:
+        elif coordinate_columns is None:
             coords = data.drop([value_column], axis=1)
+            self.values = data[value_column].values
+        elif value_column is None:
+            coords = data[coordinate_columns]
+            self.values = None
+        else:
+            coords = data[coordinate_columns]
             self.values = data[value_column].values
         norm = np.sum(coords.values, axis=1, keepdims=True)
         ind = np.sum(np.isnan(coords), axis=1) == 0
