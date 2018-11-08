@@ -34,16 +34,11 @@ pdat = pd.DataFrame({'class 1':vec,
 
 # plot
 bp = GenBary(pdat, 'val')
-fig, ax, im = bp.imshow()
 ```
 
 
-![png](README_files/README_3_0.png)
-
-
-
 ```python
-fig, ax, sc = bp.scatter()
+fig, ax, im = bp.imshow()
 ```
 
 
@@ -52,11 +47,20 @@ fig, ax, sc = bp.scatter()
 
 
 ```python
-fig, ax, ll = bp.plot()
+fig, ax, sc = bp.scatter()
 ```
 
 
 ![png](README_files/README_5_0.png)
+
+
+
+```python
+fig, ax, ll = bp.plot()
+```
+
+
+![png](README_files/README_6_0.png)
 
 
 ### 8 Dimensions
@@ -79,11 +83,15 @@ pdat2 = pd.DataFrame({'class 1':pos**ep,
                       'val':pos*100})
 # plot
 bp2 = GenBary(pdat2, 'val')
+```
+
+
+```python
 fig, ax, im = bp2.imshow(cmap='plasma')
 ```
 
 
-![png](README_files/README_7_0.png)
+![png](README_files/README_9_0.png)
 
 
 
@@ -92,7 +100,7 @@ fig, ax, sc = bp2.scatter(cmap='plasma', s=2)
 ```
 
 
-![png](README_files/README_8_0.png)
+![png](README_files/README_10_0.png)
 
 
 
@@ -101,7 +109,7 @@ fig, ax, ll = bp2.plot()
 ```
 
 
-![png](README_files/README_9_0.png)
+![png](README_files/README_11_0.png)
 
 
 ## Further Info
