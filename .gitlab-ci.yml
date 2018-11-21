@@ -33,10 +33,9 @@ test:
 
 run:
   script:
-  - python setup.py bdist_wheel
-  - pip install jupyter
+  - pip install . jupyter
   - jupyter nbconvert --to markdown --execute README.ipynb
   artifacts:
     paths:
     - README.md
-    
+
