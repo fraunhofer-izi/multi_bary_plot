@@ -10,6 +10,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.spatial.distance import cdist
 from scipy.spatial import ConvexHull
 
+
 class GenBary:
     """
 
@@ -52,16 +53,19 @@ class GenBary:
 
     def __init__(self, data, value_column=None, coordinate_columns=None,
                  res=500, ticks=None):
-        if value_column is not None and value_column not in data.columns.values:
-            raise ValueError('`value_column` musste be a column name of `data`.')
-        if (coordinate_columns is not None and
-            (not isinstance(coordinate_columns, list) or
-            len(coordinate_columns) < 3)):
-            raise ValueError('`coordinate_columns` musste be a list of at least '
-                             + 'three column names of `data`.')
-        if (coordinate_columns is not None and
-            not all([cc in data.columns.values for cc in coordinate_columns])):
-            raise ValueError('All `coordinate_columns` musste be column names of `data`.')
+        if value_column is not None and \
+           value_column not in data.columns.values:
+            raise ValueError('`value_column` musste be '
+                             + 'a column name of `data`.')
+        if coordinate_columns is not None:
+            if not isinstance(coordinate_columns, list) or \
+               len(coordinate_columns) < 3:
+                raise ValueError('`coordinate_columns` musste be a list'
+                                 + 'of at least three column names of `data`.')
+        if coordinate_columns is not None and \
+           not all([cc in data.columns.values for cc in coordinate_columns]):
+            raise ValueError('All `coordinate_columns` musste be '
+                             + 'column names of `data`.')
         if not isinstance(res, (int, float)):
             raise ValueError('`res` musst be numerical.')
         self.res = int(res)
@@ -233,7 +237,8 @@ class GenBary:
         if colorbar:
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('bottom', size='5%', pad=.2)
-            fig.colorbar(im, cax=cax, orientation='horizontal', ticks=self.ticks)
+            fig.colorbar(im, cax=cax, orientation='horizontal',
+                         ticks=self.ticks)
         # manual limits because of masked data
         v = self.vertices
         xpad = (v['x'].max()-v['x'].min()) * .05
@@ -303,11 +308,8 @@ class GenBary:
         if colorbar:
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('bottom', size='5%', pad=.2)
-            if 'c' in kwargs.keys():
-                vals = kwargs['c']
-            else:
-                vals = self.plot_values
-            fig.colorbar(pc, cax=cax, orientation='horizontal', ticks=self.ticks)
+            fig.colorbar(pc, cax=cax, orientation='horizontal',
+                         ticks=self.ticks)
         return fig, ax, pc
 
     def plot(self, fig=None, ax=None, **kwargs):

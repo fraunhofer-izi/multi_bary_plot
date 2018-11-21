@@ -1,3 +1,1 @@
-name = "multi_bary_plot"
-
-from multi_bary_plot import multi_bary_plot
+"""Init file for multi_bary_plot."""
