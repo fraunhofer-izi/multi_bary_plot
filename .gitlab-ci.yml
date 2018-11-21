@@ -19,7 +19,7 @@ cache:
     - venv/
 
 before_script:
-  - module load python
+  - module load Python
   - python -V               # Print out python version for debugging
   - pip install virtualenv
   - virtualenv venv
