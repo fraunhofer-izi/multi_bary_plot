@@ -55,23 +55,23 @@ class GenBary:
                  res=500, ticks=None):
         if value_column is not None and \
            value_column not in data.columns.values:
-            raise ValueError('`value_column` musste be '
+            raise ValueError('`value_column` must be '
                              + 'a column name of `data`.')
         if coordinate_columns is not None:
             if not isinstance(coordinate_columns, list) or \
                len(coordinate_columns) < 3:
-                raise ValueError('`coordinate_columns` musste be a list'
+                raise ValueError('`coordinate_columns` must be a list'
                                  + 'of at least three column names of `data`.')
         if coordinate_columns is not None and \
            not all([cc in data.columns.values for cc in coordinate_columns]):
-            raise ValueError('All `coordinate_columns` musste be '
+            raise ValueError('All `coordinate_columns` must be '
                              + 'column names of `data`.')
         if not isinstance(res, (int, float)):
-            raise ValueError('`res` musst be numerical.')
+            raise ValueError('`res` must be numerical.')
         self.res = int(res)
         numerical = ['float64', 'float32', 'int64', 'int32']
         if not all([d in numerical for d in data.dtypes]):
-            raise ValueError('The data musst be numerical.')
+            raise ValueError('The data must be numerical.')
         if value_column is None and coordinate_columns is None:
             coords = data
             self.values = None
