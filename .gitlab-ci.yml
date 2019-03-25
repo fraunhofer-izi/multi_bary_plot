@@ -33,7 +33,7 @@ test:
 
 run:
   script:
-  - pip install ./multi_bary_plot jupyter
+  - pip install . jupyter
   - jupyter nbconvert --to markdown --execute README.ipynb
   artifacts:
     paths:
