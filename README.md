@@ -10,7 +10,7 @@ We use the closest value in barycentric coordinates to color the pixels accordin
 ## Install
 
 ```
-pip install git+ssh://git@ribogit.izi.fraunhofer.de/Dominik/multi_bary_plot.git
+pip install git+https://github.com/katosh/multi_bary_plot
 ```
 
 ## Example
