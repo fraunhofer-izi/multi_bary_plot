@@ -15,7 +15,12 @@ before_script:
   - virtualenv venv
   - source venv/bin/activate
 
-test-run:
+test:
+  script:
+    - pip install tox flake8
+    - tox -e py36,flake
+
+run:
   script:
   - pip install . jupyter
   - jupyter nbconvert --to markdown --execute README.ipynb
