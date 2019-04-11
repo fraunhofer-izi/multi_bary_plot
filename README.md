@@ -70,7 +70,7 @@ fig, ax, ll = bp.plot()
 # generate data
 import numpy as np
 vec2 = np.pi * np.array(range(200)) / 100
-pos = np.sin(vec2)+1
+pos = np.sin(vec2) + 1
 ep = np.cos(vec2*8) + 1.4
 pdat2 = pd.DataFrame({'class 1':pos**ep,
                       'class 2':np.roll(pos, 25)**ep,
